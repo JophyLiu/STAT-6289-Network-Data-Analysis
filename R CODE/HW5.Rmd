@@ -1,0 +1,44 @@
+---
+title: "Network Data Homework 5"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Part A
+# Introduction
+For the part A, we are going to fit the ERGMs model. For the ERGMs model, also called exponentialdom graph models.This is a statistical models of the network.This is a very useful, flexible and powerful modeling approach for building and testing statistical models of networks. In order to construct the ERGMs model, we use the dataset of "coevolve". 
+
+## Model 1
+From the model 1, we cahnge the network to an undirected one. And to make sure the result is the same, we set a seed =123. The n we have the result for change one. 
+```{r cars,echo=FALSE}
+library(statnet)
+library(intergraph)
+library("UserNetR")
+library(igraph)
+data(Coevolve)
+fr_w1 <- Coevolve$fr_w1
+fr_w2 <- Coevolve$fr_w2
+fr_w3 <- Coevolve$fr_w3
+fr_w4 <- Coevolve$fr_w4
+m1<- asNetwork(as.undirected(fr_w1))
+m2<- asNetwork(as.undirected(fr_w2))
+m3<- asNetwork(as.undirected(fr_w3))
+m4<- asNetwork(as.undirected(fr_w4))
+fit1 <- ergm(m1 ~ edges,control=control.ergm(seed=123))
+summary(fit1)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

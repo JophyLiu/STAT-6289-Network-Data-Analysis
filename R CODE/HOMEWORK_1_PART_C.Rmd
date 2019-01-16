@@ -1,0 +1,70 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(statnet)
+netmat2 <- rbind(
+c(1,3),
+c(2,4),
+c(3,4),
+c(3,5),
+c(4,5),
+c(4,6),
+c(4,7),
+c(4,8),
+c(6,7),
+c(6,8),
+c(7,8),
+c(7,9),
+c(8,9),
+c(8,10),
+c(8,11),
+c(9,14),
+c(11,12),
+c(12,13),
+c(13,14),
+c(13,15),
+c(13,16),
+c(14,15),
+c(15,16),
+c(16,17),
+c(17,18),
+c(17,19),
+c(18,19)
+)
+
+
+net2=network(netmat2,matrix.type='edgelist',direct=F)
+network.vertex.names(net2)=c("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s")
+summary(net2)
+#net3=as.matrix(net2,matrix.type="adjacency")
+#net3
+#net4=network(net3,matrix.type="adjacency")
+#class(net4)
+#summary(net4)
+#net3 <- symmetrize(net3,rule="weak")
+#net4=network(net3,matrix.type="adjacency",directed = FALSE)
+#summary(net4)
+set.vertex.attribute(net2, "group",                    c(2,2,2,2,2,"blue","blue","purple","blue","purple","purple","purple","purple","blue",3,3,3,3,3))
+group= net2%v% 'group'
+group
+gplot(net2,displaylabels = F,gmode='graph',vertex.col =group,vertex.cex=2, label.cex=1, label.pos=5,edge.lwd = 2,edge.col = 'lightgrey')
+
+network.size(ne2t)
+gden(net2)
+components(net2)
+a2=component.largest(net2,result='graph')
+b2=geodist(a2)
+max(b2$gdist)
+gtrans(net2)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).

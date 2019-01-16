@@ -1,0 +1,137 @@
+---
+title: "Homework 6"
+author: "Jiaying Liu"
+date: "November 23, 2018"
+output:
+  word_document: default
+  html_document: default
+header-includes: \usepackage{caption}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Rerun the code
+## chapter2:Model specification and fitting 
+```{r,echo=FALSE,warning=FALSE,include=FALSE}
+library(statnet)
+library(latentnet)
+```
+
+# 2.1 A simple motivating example
+```{r}
+data('sampson')
+network.vertex.names(samplike)
+```
+From this result we can see the vertex name of the sampson dataset.
+
+```{r}
+samplike %v% "group"
+```
+And notices that in this dataset, the observations are sperated into different group, so in the next step, we are going to fit the model with the group. 
+
+We use the maximum likelihood method to get the estimator for the latent position model. Use the defaults value of the algorithm we get the result as following. 
+```{r}
+samplike.fit <- ergmm(samplike ~ euclidean(d = 2), tofit = c("mle"))
+samplike.fit$mle$Z
+```
+From above table,we can get the result of maximum likelihood positions. 
+
+To make it more directly to detect the position, we are going to plot the result. And beforing drawing the picture, we need to change the group into a single sign which make it more easy to plot.
+```{r}
+oneL <- samplike %v% "group"
+oneL[oneL == "Turks"] <- "T"
+oneL[oneL == "Outcasts"] <- "O"
+oneL[oneL == "Loyal"] <- "L"
+oneL[c(1, 7, 15)] <- "W"
+oneL
+```
+
+```{r,warning=FALSE}
+oneLcolors <- c("red", "blue", "black", "green")[match(oneL,c("T", "O", "L", "W"))]
+plot(samplike.fit, label = oneL, vertex.col = oneLcolors,what = "mle", main = "MLE positions", print.formula = FALSE,labels = TRUE)
+title(sub ="Color represents the estimated groups; Labels the Sampson's groups")
+```
+In the above figure, we can see the position of the vertex and the group distribution with different color. 
+
+## 2.3 An example of a latent position fit with clustering
+In this section, we fit the latent position model with two dimensions and three group to the same dataset. 
+```{r,warning=FALSE}
+set.seed(3141)
+samplike.fit <- ergmm(samplike ~ euclidean(d = 2, G = 3),verbose = TRUE)
+summary(samplike.fit)
+```
+When we set the dimention to be 2 and have 3 group, we have the result as above table. We can see after 10 iteration, we have the estimator intercept=1.9982. And its p-value smaller than 0.05, so we can say this estimator is significant. The covariate coefficients of MKL is 1.16573. 
+
+## 2.6 Nonbinary edge weights 
+In this section, we are going to add one more item in the ergmm procedure name family, fam.par. With those parameters, we are able to specify the model for the response variable.With the dataset "tribes", we have 16 tribes in the Eastern Central Highlands of New Guinea, with each pair of tribes report to be in one of three states of relation: alliance, antagonism, or neutrality.we code alliance as 2, antagonism as 0, and neutrality as 1, and fit a binomial model with 2 trials.
+```{r}
+data("tribes")
+tribes.fit <- ergmm(tribes ~ euclidean(d = 2, G = 3),
+ family = "binomial", fam.par = list(trials = 2),
+ response = "sign.012", verbose = 1)
+summary(tribes.fit)
+```
+From the above table, we get the result about the parameter. The intercept estimate is 2.701 and its p value is smaller that 0.05. So we can say this is significant. And the covariate coefficients of MKL is 1.95.
+
+## chapter 3 Output format and visualization
+## 3.2 summarizing model fit 
+```{r}
+attr(samplike.fit$sample, "Q")
+```
+This is the posterior probabilities of group membership for each monk in samplike.fit dataset. We can see that when the probabilities above 90%, the monks are more likely to been assigned to a group. 
+
+## 3.3 Plotting model fits 
+```{r,warning=FALSE}
+
+plot(samplike.fit)
+plot(samplike.fit, pie = TRUE, vertex.cex = 2.5)
+```
+From the above two figure, we can get the result of minimum Kullback-Lerbler(MKL) estimates for the sampson's Monks. After we setting the vertex.size, it is able to enlarge the size of vertex so that it is more easy to detect. 
+
+```{r,warning=FALSE}
+plot(samplike.fit, what = "pmean")
+samplike.fit <- ergmm(samplike ~ euclidean(d = 2, G = 3),verbose = TRUE,tofit=('pmode'))
+plot(samplike.fit, what = "pmode")
+```
+We can also use other point estimates using the argument what='pmean' or what='pmode'. For example in this dataset, we use the posterior means to estimate the model and get the result as above showing. 
+
+
+```{r,warning=FALSE}
+plot(samplike.fit, what = 4)
+```
+Also we can try to spcify the plot statement to plot the result of any iterated time of MCMC draw. In the above figure, it show the result 4th MCMC draw
+```{r,warning=FALSE}
+#for (i in 1:samplike.fit$control$sample.size) {
+# plot(samplike.fit, what = i)
+# Sys.sleep(0.1)
+#}
+
+```
+
+```{r,warning=FALSE}
+plot(tribes.fit, edge.col = as.matrix(tribes, "gama",
+ m = "a") * 3 + as.matrix(tribes, "rova", m = "a") *
+ 2, pie = TRUE)
+samplike.fit$control$sample.size
+```
+
+
+## chapter 6 Assessment of model fit via posterior predictive checks 
+In this section, we are going to run the assessment of the model fit. With is assessment, we can consider posterior predictive checks.The goodness of fit method based on how similar the networks simulated from the posterior predictive distribution are to the original for some higher-order statistics of interest, such as the distribution of geodesic distances.
+
+```{r,warning=FALSE}
+samplike.fit.gof <- gof(samplike.fit)
+summary(samplike.fit.gof)
+```
+We have three kind of default statistics which are idegree, odegree and geodesic distance.
+```{r}
+plot(samplike.fit.gof)
+```
+For the in degree plot, the line is the acture monks and the box is the produce monks. we can see that the overall model reproduces the obsereved statistics well. However there are a tendencey to under produce monks of degree 2 and 3. And tere are a tendency  to over produce monks of degree 4. In other word, there is a tendenct for the actual monks to have degree 2 or 3 more often and 4 less often than the model expect. 
+
+
+For the out degree plot, the line is the acture monks and the box is the produce monks. we can see that the overall model reproduces the obsereved statistics well. However there are a tendencey to under produce monks of degree 4 5 and 6. And tere are a tendency  to over produce monks of degree 3 and 7. In other word, there is a tendenct for the actual monks to have degree 4 5 or 7 more often and 3 or 7 less often than the model expect. 
+
+For the minimum geodesic distance,we can see the model is well describe the distance. the actual monk contain the fit monks.  

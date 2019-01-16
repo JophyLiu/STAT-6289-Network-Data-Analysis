@@ -1,0 +1,165 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+#define network 
+library(statnet)
+netmat<- rbind(
+  c(1,2),
+  c(1,3),
+  c(1,4),
+  c(1,5),
+  c(1,6),
+  c(1,7),
+  c(1,8),
+  c(1,9),
+  c(1,10),
+  c(1,11),
+  c(1,12),
+  c(1,13),
+  c(1,14),
+  c(1,15),
+  c(1,16),
+  c(1,17),
+  c(2,3),
+  c(2,4),
+  c(2,8),
+  c(2,13),
+  c(2,14),
+  c(2,15),
+  c(2,16),
+  c(3,4),
+  c(3,8),
+  c(3,9),
+  c(3,13),
+  c(4,8),
+  c(4,12),
+  c(4,13),
+  c(5,7),
+  c(5,10),
+  c(6,7),
+  c(6,10)
+)
+net<-network(netmat,matrix.type='edgelist',direct=F)
+network.vertex.names(net)<-c("a1","a2","a3","a4","a5","a6","a7","a8","a9","a11","a12","a13","a14","a18","a20","a22","a32")
+summary(net)
+```
+
+```{r}
+#edge with(define)
+edge_width<-c(10,12,8,8,8,8,6,6,6,8,4,8,6,6,6,6,14,8,10,12,4,6,6,8,10,12,8,8,8,8,6,8,12,8)
+edge_width<-edge_width
+
+#test
+gplot(net,vertex.cex=2,gmode="graph",
+  vertex.col="lightblue",
+  edge.lwd=edge_width,
+  displaylabels=TRUE,label.pos=5,pad=0.4,label.col="black")
+```
+
+```{r}
+#edge color(define)
+n_edge<-network.edgecount(net)
+ecolor<-c()
+ecolor[1:n_edge]<-"navy"
+ecolor[8]<-"goldenrod1"
+ecolor[16]<-"goldenrod1"
+ecolor[26]<-"goldenrod1"
+
+#test
+op <- par(mar = c(0,0,0,0))
+gplot(net,vertex.cex=2,gmode="graph",
+  vertex.col="lightblue",
+  edge.lwd=edge_width,edge.col=ecolor,
+  displaylabels=TRUE,label.pos=5,pad=0.4,label.col="black")
+par(op)
+
+```
+
+```{r}
+#node color
+vcolor<-c()
+vcolor[1:17]<-c("lightsteelblue1")
+vcolor[9]<-"lightpink1"
+vcolor[17]<-"lightpink1"
+
+#test
+op <- par(mar = c(0,0,0,0))
+gplot(net,gmode="graph",
+  vertex.col=vcolor,vertex.cex=2,
+  edge.lwd=edge_width,edge.col=ecolor,
+  displaylabels=TRUE,label.pos=5,pad=0.2,label.cex=0.75,label.col="black")
+par(op)
+
+```
+
+```{r}
+#node shape
+vshape<-c()
+vshape[1:17]<-4
+vshape[9]<-20
+vshape[17]<- 20
+
+#question 2 complete 
+set.seed(123)
+op <- par(mar = c(0,0,0,0))
+plot(net,
+  vertex.col=vcolor,vertex.cex=3.5,vertex.sides = as.integer(vshape),vertex.rot =45,
+  edge.lwd=edge_width,edge.col=ecolor,
+  displaylabels=TRUE,label.pos=5,pad=0.2,label.cex=1.5,label.col="black", mode='fruchtermanreingold')
+par(op)
+```
+
+```{r}
+#question 3(1)
+# adjust the size of node 
+#detach("package:igraph", unload=TRUE)
+#library(statnet)
+deg=degree(net,gmode='graph')
+deg
+normal_deg=(deg-min(deg))/(max(deg)-min(deg))
+normal_deg
+set.seed(123)
+op <- par(mar = c(0,0,1,0))
+plot(net,
+  vertex.col=vcolor,vertex.cex=(normal_deg)*2+3,vertex.sides = as.integer(vshape),vertex.rot =45,
+  edge.lwd=edge_width,edge.col=ecolor,
+  displaylabels=T,label.pos=5,pad=0.1,label.cex=1.5,label.col="black",
+  mode='fruchtermanreingold',main='Adjust node sizes with normalize degree')
+legend("bottomleft",legend=c("Yellow edge","Bule edge"),col = "black", bty = "n", pch=c(21,22) , pt.cex = 2.5,pt.bg= levels(as.factor(vcolor)), cex = 1, text.col=levels(as.factor(ecolor)), horiz = FALSE,inset =0.1)
+#legend("bottomleft",legend=levels(as.factor(vcolor)),col = vcolor, bty = "n", pch=20 , pt.cex = 3, cex = 1.5, text.col=vcolor, horiz = FALSE, inset = c(0.1, 0.1))
+# legend('topleft',legend=levels(as.factor(deg$res)),col="black",cex=1,pch = 22,pt.cex =as.numeric(levels(as.factor(log(deg$res)*5+5))),pt.bg="lightsteelblue1")
+par(op)
+```
+
+```{r}
+#question 3(1)
+# adjust the size of node 
+#detach("package:igraph", unload=TRUE)
+#library(statnet)
+
+set.seed(123)
+op <- par(mar = c(0,0,1,0))
+plot(net,
+  vertex.col=vcolor,vertex.cex=(normal_deg)*2+3,vertex.sides = as.integer(vshape),vertex.rot =45,
+  edge.lwd=log(edge_width), edge.col=ecolor,,edge.lty=(edge_width/2),
+  displaylabels=T,label.pos=5,pad=0.1,label.cex=1.5,label.col="black",
+  mode='fruchtermanreingold',main='Adjust node sizes with normalize degree and edge type')
+
+# legend('topleft',legend=levels(as.factor(deg$res)),col="black",cex=1,pch = 22,pt.cex =as.numeric(levels(as.factor(log(deg$res)*5+5))),pt.bg="lightsteelblue1")
+
+legend("bottomleft",legend=c("Yellow edge","Bule edge"),col = "black", bty = "n", pch=c(21,22) , pt.cex = 2.5,pt.bg= levels(as.factor(vcolor)), cex = 1, text.col=levels(as.factor(ecolor)), horiz = FALSE,inset =0.1)
+#legend("bottomleft",legend=levels(as.factor(vcolor)),col = vcolor, bty = "n", pch=20 , pt.cex = 3, cex = 1.5, text.col=vcolor, horiz = FALSE, inset = c(0.1, 0.1))
+# legend('topleft',legend=levels(as.factor(deg$res)),col="black",cex=1,pch = 22,pt.cex =as.numeric(levels(as.factor(log(deg$res)*5+5))),pt.bg="lightsteelblue1")
+par(op)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).

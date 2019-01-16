@@ -1,0 +1,276 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+x <- rbinom(n=100, size=6, prob=0.5)
+par(mfrow=c(1,1), mai=c(1,1,1,0.1))
+hist(x, freq=FALSE, breaks=seq(from=-0.5, to=6.5, by=1), xlab="Observed Successful Trial", ylab="Relative Frequency", main="Histogram", cex.axis=2, cex.lab=2, cex.main=2, cex=2)
+```
+
+```{r}
+x <- c(1:10)
+y <- x+rnorm(10)
+plot(x, y, xlab="Observed X Value", ylab="Observed Y Value", pch=19, cex.axis=2, cex.lab=2, cex.main=2, cex=2)
+
+```
+
+```{r}
+data(iris)
+pairs(iris[1:4], main = "Anderson's Iris Data -- 3 species",pch = 21, bg = c("red", "yellow", "blue")[unclass(iris$Species)], cex.axis=2, cex.labels=2, cex.main=2, cex=2)
+
+```
+
+```{r}
+data(volcano)
+x <- 10*(1:nrow(volcano))
+y <- 10*(1:ncol(volcano))
+image(x, y, volcano, col = terrain.colors(100), axes = FALSE)
+contour(x, y, volcano, levels = seq(90, 200, by=5), add = TRUE, col = "peru")
+axis(1, at = seq(100, 800, by = 100))
+axis(2, at = seq(100, 600, by = 100))
+box()
+title(main = "Maunga Whau Volcano", font.main = 4)
+
+```
+
+```{r}
+library(statnet)
+library(tergm)
+library(ergm)
+library(network)
+library(UserNetR)
+data(Moreno)
+network.size(Moreno)
+Moreno
+```
+
+```{r}
+
+plot(Moreno)
+gender=Moreno %v% "gender"
+plot(Moreno,vertex.col=gender+2,vertex.cex=1.2)
+Moreno %v% "gender"
+```
+
+```{r}
+network.size(Moreno)
+summary(Moreno)
+gden(Moreno)
+components(Moreno)
+
+```
+
+```{r}
+lgc=component.largest(Moreno,result='graph')#It returns either a 'logical' vector indicating membership in a maximum compoent or the adjacency matrix of the subgraph
+a=geodist(lgc)#fund the numbers and lengths of Geodesics Among Nodes in a graph 
+max(a$gdist)
+```
+
+```{r}
+gtrans(Moreno,mode='graph')#return the transitivity of the element of 'data' selected by 'g', using the definition of 'measure'. triads involvong the missing values are omitted from the analysis
+```
+```{r}
+netmat1 <- rbind(
+c(0,1,1,0,0),
+c(0,0,1,1,0),
+c(0,1,0,0,0),
+c(0,0,0,0,0),
+c(0,0,1,0,0)
+)
+rownames(netmat1) <- c("A","B","C","D","E")
+colnames(netmat1) <- c("A","B","C","D","E")
+net1 <- network(netmat1,matrix.type="adjacency")
+#define netmats as network object. 
+#as.network(),is.network()
+class(net1)
+summary(net1)
+gplot(net1,vertex.col = 5,displaylabels = TRUE)#produces a two-demensional ploe of graph'g'
+
+```
+
+```{r}
+as.sociomatrix(net1)
+class(as.sociomatrix(net1))
+all(as.matrix(net1) == as.sociomatrix(net1))
+as.matrix(net1,matrix.type = "edgelist")
+
+```
+
+```{r}
+#node attributes
+
+set.vertex.attribute(net1, "gender", c("F", "F", "M", "F", "M"))
+net1 %v% "alldeg" <- degree(net1)# set value
+list.vertex.attributes(net1)
+summary(net1)
+
+get.vertex.attribute(net1, "gender")
+net1 %v% 'gender' #equal to get.vertex.attribute(net1, "gender")
+net1 %v% "alldeg"
+
+#tie attributes
+list.edge.attributes(net1)
+set.edge.attribute(net1,"rndval", runif(network.size(net1),0,1))
+list.edge.attributes(net1)
+summary(net1 %e% "rndval")
+summary(get.edge.attribute(net1,"rndval"))
+
+
+```
+
+```{r}
+netmat2 <- rbind(
+c(1,2),
+c(1,3),
+c(2,3),
+c(2,4),
+c(3,2),
+c(5,3)
+)
+net2 <- network(netmat2,matrix.type="edgelist")
+network.vertex.names(net2) <- c("A","B","C","D","E")#must define the name
+class(net2)
+summary(net2)
+gplot(net2,displaylabels = T)
+```
+```{r}
+#valued network(It is a network where the ties have some numeric value )
+netval1 <- rbind(
+c(0,2,3,0,0),
+c(0,0,3,1,0),
+c(0,1,0,0,0),
+c(0,0,0,0,0),
+c(0,0,2,0,0)
+)
+netval1 <- network(netval1,matrix.type="adjacency",ignore.eval=FALSE,names.eval="like")
+network.vertex.names(netval1) <- c("A","B","C","D","E")
+list.edge.attributes(netval1)
+get.edge.attribute(netval1, "like")
+
+as.sociomatrix(netval1)
+as.sociomatrix(netval1,"like")
+
+```
+
+```{r}
+#detach(package:statnet)
+library(igraph)
+print(netmat1)
+inet1 <- graph.adjacency(netmat1)
+class(inet1)
+summary(inet1)
+str(inet1)
+print(netmat2)
+inet2 <- graph.edgelist(netmat2)
+summary(inet2)
+V(inet2)$name <-c("A","B","C","D","E")
+E(inet2)$val <- c(1:6)
+summary(inet2)
+str(inet2)
+```
+
+```{r}
+library(intergraph)
+class(net1)
+net1igraph <- asIgraph(net1)
+class(net1igraph)
+str(net1igraph)
+
+```
+
+```{r}
+#detach("package:igraph", unload=TRUE)
+library(statnet)
+netmat3 <- rbind(c("A","B"), c("A","C"), c("B","C"), 
+                 c("B","D"), c("C","B"), c("E","C"))
+net.df <- data.frame(netmat3)
+net.df
+#write.csv(net.df, file = "MyData.csv", row.names = FALSE)
+#net.edge <- read.csv(file="MyData.csv")
+net_import <- network(net.edge, matrix.type="edgelist")
+summary(net_import)
+gden(net_import)
+
+```
+
+```{r}
+#Filtering based on node values
+#library(network)
+summary(net1)
+get.vertex.attribute(net1, "gender")#need to go back to redefine the net1
+n1F <- get.inducedSubgraph(net1, which(net1 %v% "gender" == "F"))
+n1F
+n1F[,]
+deg <- net1 %v% "alldeg"
+n2 <- net1 %s% which(deg > 1)
+gplot(n2,displaylabels=TRUE)
+
+
+data(ICTS_G10)
+ICTS_G10
+gplot(ICTS_G10,vertex.col = 2)
+gden(ICTS_G10)
+length(isolates(ICTS_G10))
+n3 <- ICTS_G10
+delete.vertices(n3,isolates(n3))
+gden(n3)
+length(isolates(n3))
+
+```
+
+```{r}
+#Filtering based on edge values
+data(DHHS)
+d <- DHHS
+gden(d)
+op <- par(mar = rep(0, 4))#par: set or query graphical parameters
+gplot(d, gmode="graph", edge.lwd=d %e% 'collab', edge.col="grey50", vertex.col="lightblue", vertex.cex=1.0, vertex.sides=20)
+par(op)
+as.sociomatrix(d)[1:6,1:6]
+list.edge.attributes(d)
+as.sociomatrix(d,attrname="collab")[1:6,1:6]#value metric
+table(d %e%"collab")
+
+d.val <- as.sociomatrix(d,attrname="collab")#define d.val as value metric of d
+d.val[d.val < 3] <- 0 #set the value under 3 as 0#filter
+d.filt <- as.network(d.val, directed=FALSE, matrix.type="a",ignore.eval=FALSE, names.eval="collab")# define d.file as network class; eval=edge value
+summary(d.filt,print.adj=FALSE)
+gden(d.filt)
+op <- par(mar = rep(0, 4))
+gplot(d.filt, gmode="graph", displaylabels=TRUE, vertex.col="lightblue", vertex.cex=1.3, label.cex=0.4, label.pos=5, displayisolates=FALSE)
+par(op)
+
+```
+
+```{r}
+op <- par(mar = rep(0, 4))
+d.val <- as.sociomatrix(d,attrname="collab")
+gplot(d.val,gmode="graph",thresh=2,
+      vertex.col="lightblue",vertex.cex=1.3,
+      label.cex=0.4,label.pos=5,
+      displayisolates=FALSE)# different in thresh 
+par(op)
+
+```
+
+```{r}
+net1[,]
+net1mat <- symmetrize(net1,rule="weak")
+net1mat
+net1symm <- network(net1mat,
+                matrix.type="adjacency")
+network.vertex.names(net1symm) <-
+                  c("A","B","C","D","E")
+summary(net1symm)
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).

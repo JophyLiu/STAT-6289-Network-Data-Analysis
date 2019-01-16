@@ -1,0 +1,79 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(igraph)
+g1 <- graph.formula(A-B,A-C, A-D)
+V(g1)$group <-c(1,2,2,2)
+plot(g1, vertex.color=V(g1)$group,
+     vertex.size=20,main='original network')
+modularity(g1, V(g1)$group)
+```
+
+```{r}
+library(UserNetR)
+data(hwd)
+h1 <- hwd
+
+```
+
+```{r}
+V(h1)$shape <- ifelse(
+   V(h1)$type==TRUE,
+   "square","circle")
+V(h1)$color <- ifelse(
+   V(h1)$type==TRUE,
+   "red","lightblue")
+h2 <- subgraph.edges(h1, 
+E(h1)[inc(V(h1)[name %in%
+c("The Wolf of Wall Street", 
+  "Gangs of New York",
+  "The Departed")])])
+plot(h2, layout = layout_with_kk)
+
+```
+
+```{r}
+V(h2)$group <- ifelse(
+   V(h2)$type==TRUE,
+   1,2)
+modularity(h2, V(h2)$group)
+```
+
+```{r}
+g2 <- graph.formula(A-B-C-A,I-H-G-I,D-E-F-D,A-I, G-F,C-D)
+plot(g2, vertex.color=1,
+     vertex.size=20,main='original network')
+V(g2)$group <-c(1,1,1,2,2,2,3,3,3)
+plot(g2, vertex.color=V(g2)$group,
+     vertex.size=20,main='original network')
+modularity(g2, V(g2)$group)
+```
+
+```{r}
+g3 <- graph.formula(B-B,E-E,H-H,B-H,B-E,H-E)
+g3[from=V(g3), to=V(g3)] <- 1
+E(g3)$weight=c(1,1,1,6,6,6)
+V(g3)$group=c(1,3,2)
+plot(g3, 
+     vertex.color=V(g3)$group,
+     
+     edge.width =ifelse(is.loop(g3),2.5,1.5),
+     
+     edge.color=ifelse(is.loop(g3),7, 6),
+     edge.label=E(g3)$weight,
+     
+     vertex.size=15,main='new network')
+modularity(g3, V(g3)$group)
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).

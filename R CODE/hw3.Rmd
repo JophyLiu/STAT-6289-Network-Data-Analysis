@@ -1,0 +1,159 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(statnet)
+netmat<- rbind(
+  c(1,2),
+  c(1,3),
+  c(2,3),
+  c(3,4),
+  c(3,5),
+  c(3,7),
+  c(4,5),
+  c(5,6),
+  c(6,7),
+  c(7,8),
+  c(9,8),
+  c(10,8)
+)
+net<-network(netmat,matrix.type='edgelist',direct=F)
+network.vertex.names(net)<-c("a","b","c","d","e","f","g","h","i","j")
+summary(net)
+```
+
+```{r}
+#detach("package:statnet", unload=TRUE)
+#library(igraph)
+#library(intergraph)
+net1=asIgraph(net)
+coreness <- graph.coreness(net1)
+table(coreness)
+maxCoreness <- max(coreness)
+maxCoreness
+
+V(net1)$name <- coreness
+
+net11_3 <- net1
+net12_3 <- induced.subgraph(net1,
+vids=which(coreness > 1))
+net13_3 <- induced.subgraph(net1,
+vids=which(coreness > 2))
+
+lay <- layout.fruchterman.reingold(net1)
+op <- par(mfrow=c(1,2),mar = c(1,0,2,0))
+plot(net11_3,layout=lay,main="All k-cores")
+plot(net12_3,layout=lay[
+  which(coreness > 1),], main="k-cores 2-2")
+
+par(op)
+
+```
+
+```{r}
+modularity(net1, coreness)
+
+V(net1)$grp_1 <-c(1,1,1,2,2,3,3,4,4,4)
+modularity(net1, V(net1)$grp_1)
+
+V(net1)$grp_2 <- c(1,1,1,1,1,2,2,3,3,3)
+modularity(net1, V(net1)$grp_2)
+
+V(net1)$grp_3<- c(1,1,1,2,2,2,2,3,3,3)
+modularity(net1, V(net1)$grp_3)
+
+```
+
+```{r}
+V(net1)$name=c("a","b","c","d","e","f","g","h","i","j")
+cw <- cluster_walktrap(net1)
+membership(cw)
+modularity(cw)
+plot(cw, net1)
+
+```
+
+```{r}
+
+
+cw <- cluster_walktrap(net1)
+modularity(cw)
+membership(cw)
+
+ceb <- cluster_edge_betweenness
+   (net1)
+modularity(ceb)
+membership(ceb)
+
+cs <- cluster_spinglass(net1)
+modularity(cs)
+membership(cs)
+
+cfg <- cluster_fast_greedy(net1)
+modularity(cfg)
+membership(cfg)
+
+clp <- cluster_label_prop(net1)
+modularity(clp)
+membership(clp)
+
+cle <- cluster_leading_eigen(net1)
+modularity(cle)
+membership(cle)
+
+cl <- cluster_louvain(net1)
+modularity(cl)
+membership(cl)
+
+co <- cluster_optimal(net1)
+modularity(co)
+membership(co)
+
+table(V(net1)$role,membership(cw))
+compare(as.numeric(factor(
+   V(net1)$role)),cw,
+method="adjusted.rand")
+compare(cw,ceb,method=
+   "adjusted.rand")
+compare(cw,cs,method=
+   "adjusted.rand")
+compare(cw,cfg,method=
+   "adjusted.rand")
+
+
+op <- par(mfrow=c(3,2),mar=c(3,0,2,0))
+plot(ceb, net1,vertex.label=
+ V(net1)$role, main="Edge Betweenness")
+plot(cfg, net1,vertex.label=
+ V(net1)$role, main="Fastgreedy")
+plot(clp, net1,vertex.label=
+ V(net1)$role, main="Label Propagation")
+plot(cle, net1,vertex.label=
+ V(net1)$role,
+ main="Leading Eigenvector")
+plot(cs, net1,vertex.label=
+ V(net1)$role, main="Spinglass")
+plot(cw, net1,vertex.label=
+ V(net1)$role, main="Walktrap")
+par(op)
+
+```
+
+```{r}
+cw <- cluster_walktrap(net1)
+modularity(cw)
+membership(cw)
+table(coreness,
+   membership(cw))
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).

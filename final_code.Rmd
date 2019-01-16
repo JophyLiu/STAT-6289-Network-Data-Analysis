@@ -1,0 +1,212 @@
+---
+title: "Final project"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(networkTomography)
+library(igraph)
+```
+
+#create the network 
+
+http://kateto.net/netscix2016
+https://www.jstor.org/stable/pdf/4144399.pdf
+https://projecteuclid.org/download/pdf_1/euclid.aoms/1177731829
+https://www.cs.utexas.edu/users/yzhang/papers/mmi-sig03.pdf
+
+```{r cars}
+edge_list=rbind(
+  c	(	"	A	"	,	"	B	"	)	,
+c	(	"	B	"	,	"	A	"	)	,
+c	(	"	B	"	,	"	C	"	)	,
+c	(	"	B	"	,	"	I	"	)	,
+c	(	"	C	"	,	"	D	"	)	,
+c	(	"	C	"	,	"	K	"	)	,
+c	(	"	C	"	,	"	E	"	)	,
+c	(	"	D	"	,	"	C	"	)	,
+c	(	"	E	"	,	"	F	"	)	,
+c	(	"	E	"	,	"	M	"	)	,
+c	(	"	E	"	,	"	G	"	)	,
+c	(	"	F	"	,	"	E	"	)	,
+c	(	"	G	"	,	"	O	"	)	,
+c	(	"	G	"	,	"	H	"	)	,
+c	(	"	G	"	,	"	B	"	)	,
+c	(	"	H	"	,	"	G	"	)	,
+c	(	"	I	"	,	"	J	"	)	,
+c	(	"	J	"	,	"	C	"	)	,
+c	(	"	J	"	,	"	Q	"	)	,
+c	(	"	K	"	,	"	L	"	)	,
+c	(	"	L	"	,	"	E	"	)	,
+c	(	"	L	"	,	"	Q	"	)	,
+c	(	"	M	"	,	"	N	"	)	,
+c	(	"	N	"	,	"	G	"	)	,
+c	(	"	N	"	,	"	Q	"	)	,
+c	(	"	O	"	,	"	P	"	)	,
+c	(	"	P	"	,	"	B	"	)	,
+c	(	"	P	"	,	"	Q	"	)	,
+c	(	"	Q	"	,	"	B	"	)	,
+c	(	"	Q	"	,	"	I	"	)	,
+c	(	"	Q	"	,	"	C	"	)	,
+c	(	"	Q	"	,	"	K	"	)	,
+c	(	"	Q	"	,	"	E	"	)	,
+c	(	"	Q	"	,	"	M	"	)	,
+c	(	"	Q	"	,	"	G	"	)	,
+c	(	"	Q	"	,	"	O	"	)	
+)
+c=graph_from_edgelist(edge_list)
+plot(c,vertex.cex=8,vertex.dist=4,edge.arrow.size=0.25,edge.color="black",main="Network of city Transportation ")
+```
+
+```{r}
+edge_list_2=rbind(
+  c	(	"	A	"	)	,
+
+c	(	"	B	"	,	"	C	"	)	,
+c	(	"	B	"	,	"	I	"	)	,
+
+c	(	"	C	"	,	"	K	"	)	,
+c	(	"	C	"	,	"	E	"	)	,
+c	(	"	D	"	)	,
+
+c	(	"	E	"	,	"	M	"	)	,
+c	(	"	E	"	,	"	G	"	)	,
+c	(	"	F	"	)	,
+c	(	"	G	"	,	"	O	"	)	,
+
+c	(	"	G	"	,	"	B	"	)	,
+c	(	"	H	"		)	,
+c	(	"	I	"	,	"	J	"	)	,
+c	(	"	J	"	,	"	C	"	)	,
+c	(	"	J	"	,	"	Q	"	)	,
+c	(	"	K	"	,	"	L	"	)	,
+c	(	"	L	"	,	"	E	"	)	,
+c	(	"	L	"	,	"	Q	"	)	,
+c	(	"	M	"	,	"	N	"	)	,
+c	(	"	N	"	,	"	G	"	)	,
+c	(	"	N	"	,	"	Q	"	)	,
+c	(	"	O	"	,	"	P	"	)	,
+c	(	"	P	"	,	"	B	"	)	,
+c	(	"	P	"	,	"	Q	"	)	,
+c	(	"	Q	"	,	"	B	"	)	,
+c	(	"	Q	"	,	"	I	"	)	,
+c	(	"	Q	"	,	"	C	"	)	,
+c	(	"	Q	"	,	"	K	"	)	,
+c	(	"	Q	"	,	"	E	"	)	,
+c	(	"	Q	"	,	"	M	"	)	,
+c	(	"	Q	"	,	"	G	"	)	,
+c	(	"	Q	"	,	"	O	"	)	
+)
+c_2=graph_from_edgelist(edge_list_2)
+#delete selfloop
+c_2=simplify(c_2,remove.loops = TRUE)
+plot(c_2,vertex.cex=8,vertex.dist=4,edge.arrow.size=0.25,edge.color="black",main="Network of original city Transportation ")
+```
+#network with transport happen 
+```{r}
+edge_1=c(1,1,1,2,1,2,1,1,1,2,1,1,2,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,	2,2,2,2,2,2,2)
+E(c)$trans=edge_1
+plot(c,vertex.cex=8,vertex.dist=4,edge.arrow.size=0.25,main="Network of city Transportation ",edge.color=edge_1*2)
+
+```
+#subgraph for the network have transport 
+
+
+
+```{r}
+edge_list_1=rbind(
+  c	(	"	A	"	,	"	B	"	)	,
+c	(	"	B	"	,	"	A	"	)	,
+c	(	"	B	"	,	"	C	"	)	,
+c	(	"	C	"	,	"	D	"	)	,
+c	(	"	C	"	,	"	E	"	)	,
+c	(	"	D	"	,	"	C	"	)	,
+c	(	"	E	"	,	"	F	"	)	,
+c	(	"	E	"	,	"	G	"	)	,
+c	(	"	F	"	,	"	E	"	)	,
+c	(	"	G	"	,	"	H	"	)	,
+c	(	"	G	"	,	"	B	"	)	,
+c	(	"	H	"	,	"	G	"	)	)
+c_3=graph_from_edgelist(edge_list_1)
+plot(c_3,vertex.cex=8,vertex.dist=4,edge.arrow.size=0.25,edge.color="black",main="Network of original city Transportation ")
+```
+#import dataset 
+```{r}
+est_data=read.csv('C:/Users/jiayingliu/Downloads/FinalProjectRoad.csv',header = TRUE)
+
+#get the dataset about road tranport 
+x=est_data[,2:13]
+
+#create adjance matrix for B 
+b=read.csv("C:/Users/jiayingliu/Desktop/final/B.csv",h=TRUE)
+b=b[1:12,2:13]
+
+#read in validation data
+z=read.csv('C:/Users/jiayingliu/Desktop/final/FinalProject.csv',h=TRUE)
+z=z[,2:13]
+```
+#find the shortest path
+```{r}
+
+```
+
+```{r}
+x_1=sapply(x,as.numeric)
+b_1=sapply(b,as.numeric)
+z_1=sapply(z,as.numeric)
+
+
+tomo.fit=tomogravity(x_1,b_1,0.01)
+zhat=tomo.fit$Xhat
+
+#write.csv(data.frame(zhat),"C:/Users/jiayingliu/Desktop/final/zhat.csv")
+```
+
+```{r}
+nt=nrow(z_1)
+nf=ncol(z_1)
+
+t.dat=data.frame(z=as.vector(c(z_1)),zhat=as.vector(c(zhat)),t=c(rep(as.vector(est_data$month),nf)))
+
+od.names=c(
+  rep("	A->D	",nt),
+  rep("	A->F	",nt),
+  rep("	A->H	",nt),
+  rep("	D->A	",nt),
+  rep("	D->F	",nt),
+  rep("	D->H	",nt),
+  rep("	F->A	",nt),
+  rep("	F->D	",nt),
+  rep("	F->H	",nt),
+  rep("	H->A	",nt),
+  rep("	H->D	",nt),
+  rep("	H->F	",nt))
+
+t.dat=transform(t.dat,OD=od.names)
+
+xyplot(z~t | OD, data=t.dat,
+panel=function(x, y, subscripts){
+panel.xyplot(x, y, type="l", col.line="blue")
+panel.xyplot(t.dat$t[subscripts],
+t.dat$zhat[subscripts],
+type="l", col.line="green")
+}, as.table=T, subscripts=T, xlim=c(0, 96),
+xlab="month of data", ylab="amount of cargo")
+
+
+```
+
+```{r}
+t.res=data.frame(z=as.vector(c(z_1)),zhat=as.vector(c(zhat)),res=as.vector(c(z_1)-c(zhat)),t=c(rep(as.vector(est_data$month),nf)))
+t.res=transform(t.res,OD=od.names)
+
+xyplot(res~t | OD, data=t.res,
+panel=function(x, y, subscripts){
+panel.xyplot(x, y, type="l", col.line="red")
+}, as.table=T, subscripts=T, xlim=c(0, 96),
+xlab="month of data", ylab="residual of predict vs true")
+
+
+```
+
